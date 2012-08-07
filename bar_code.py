@@ -1,29 +1,38 @@
 #! /usr/bin/python2.7
 
+__author__ = 'Tapo4ek'
+
 import Image
 import ImageDraw
 import ImageFont
 import base64
 import sys
-import cStringIO
 import os
 
 TABLE = {'0':'00110', '1':'10001', '2':'01001', '3':'11000', '4':'00101', '5':'10100', '6':'01100', '7':'00011', '8':'10010', '9':'01010'}
 
 class InterLeaved2of5:
     """
-    Generates InterLeaved 2 of 5 Bar code as base64
+    Generates InterLeaved 2 of 5 Bar code
+    
     import bar_code
-    bar_code_obj = bar_code.InterLeaved2of5('10987654321007412589630')
-    im = bar_code_obj.get_image()
+    bar_code_obj = bar_code.InterLeaved2of5(data='10987654321007412589630')
+    bar_code_obj.get_image()
+    
+    Or you can use it as independent programm
+    
+    python bar_code.py 10987654321007412589630
+    ./bar_code.py NUMBER_TO_ENCODE
     """
 
-    def __init__(self, data=sys.argv[1], width=2, height=50, first_color='#000000', second_color='#ffffff', font="ARIAL.TTF"):
-        self.data = data
+    def __init__(self, data=None, width=2, height=50, background_color='#FFFFFF', first_color='#000000', second_color='#FFFFFF', font="ARIAL.TTF"):
+        if len(sys.argv) > 1: self.data = sys.argv[1]
+        else: self.data = data
         self.width = width
         self.height = height
         self.first_color = first_color
         self.second_color = second_color
+        self.background_color = background_color
         self.font = font
 
     def _control_number(self):
@@ -31,6 +40,12 @@ class InterLeaved2of5:
         Function counts control number
         and returns all data plus control number as string
         """
+        try:
+            int(self.data)
+        except ValueError as e:
+            print('You have entered wrong data. InterLeaved2of5 can convert only numbers')
+            print(e)
+            sys.exit()
         if len(self.data) % 2 == 0:
             self.data = '0' + self.data
         even_array = []
@@ -103,14 +118,14 @@ class InterLeaved2of5:
 
     def get_image(self):
         """
-        Function creats image
-        then loading font and creating a number under image
+        Function creates image
+        then loads font and creates a number under image
         """
         self._image_size()
         all_bits = self.data
         image_height = self.height * 100 / 67
         numbers_height = image_height - self.height
-        im = Image.new('RGB', (self.image_width, image_height), '#ffffff')
+        im = Image.new('RGB', (self.image_width, image_height), self.background_color)
         draw = ImageDraw.Draw(im)
         counter = 0
         beginning_of_line = self.width
@@ -140,36 +155,29 @@ class InterLeaved2of5:
             draw.text((x_place, y_place), i, self.first_color, font=font)
             simbol_width, simbol_height = font.getsize(i)
             x_place += simbol_width + space
-#        image_base64 = base64.encode(im, open("out.b64", "w"))
-#        im.save("foo.png")
-
-
-#        output = cStringIO.StringIO()
-#        format = 'PNG' # or 'JPEG' or whatever you want
-#        im.save(output, format)
-#        contents = output.getvalue()
-#        output.close()
-
         im.save(self.value, "PNG")
 
+    def get_image_base64(self):
+        """
+        Function prints to stdout base64 of the image
+        Useful for inputing to the database
+        
+        "Be careful, i used strings below to start my script from python 3.2"
+        PY27_PATH = '/usr/bin/python2.7'
+        PATH_TO_SCRIPT = '/some/path/to/folder/with/script'
+        NUMBER_TO_ENCODE = '10987654321007412589630' #for example
+        from subprocess import Popen, PIPE
+        p1 = Popen([PY27_PATH, os.path.join(PATH_TO_SCRIPT,"bar_code.py"),NUMBER_TO_ENCODE], stdout=PIPE)
+        interleaved_base64 = str(p1.stdout.read(), 'utf8')
+        """
+        self.get_image()
         with open('%s' % self.value) as f:
             data = f.read()
             f.close()
             os.system('rm %s' % self.value)
             return data.encode("base64")
-
-#        im.save(self.value, "JPEG")
-
-
-#        image_base64 = im.tostring()
-#        image_base64 = base64.b64encode(im.tostring())
-#        image_base64 = str(image_base64, encoding='utf8')
-#       image_base64 = base64.encodebytes(im.tostring())
-#        im_text = im.read()
-#        image_base64 = base64.b64encode(im_text)
-#        return image_base64
-#        data = im.tostring()
-#        file_like = cStringIO.StringIO(data)
-#        return file_like.read().encode('base64')
-bar_code_obj = InterLeaved2of5(sys.argv[1]).get_image()
-print (bar_code_obj)
+        
+if __name__ == "__main__":
+    if len(sys.argv) > 1: data = sys.argv[1]
+    else: data = '10987654321007412589630'
+    InterLeaved2of5(data).get_image()
