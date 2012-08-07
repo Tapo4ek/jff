@@ -14,7 +14,9 @@ TABLE = {'0':'00110', '1':'10001', '2':'01001', '3':'11000', '4':'00101', '5':'1
 class InterLeaved2of5:
     """
     Generates InterLeaved 2 of 5 Bar code
-    
+    Need PIL installed and need some font file in the same folder
+    in my example this file - "ARIAL.TTF"
+
     import bar_code
     bar_code_obj = bar_code.InterLeaved2of5(data='10987654321007412589630')
     bar_code_obj.get_image()
