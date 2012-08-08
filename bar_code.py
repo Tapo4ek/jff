@@ -27,9 +27,8 @@ class InterLeaved2of5:
     ./bar_code.py NUMBER_TO_ENCODE
     """
 
-    def __init__(self, data=None, width=2, height=50, background_color='#FFFFFF', first_color='#000000', second_color='#FFFFFF', font="ARIAL.TTF"):
-        if len(sys.argv) > 1: self.data = sys.argv[1]
-        else: self.data = data
+    def __init__(self, data, width=2, height=50, background_color='#FFFFFF', first_color='#000000', second_color='#FFFFFF', font="ARIAL.TTF"):
+        self.data = data
         self.width = width
         self.height = height
         self.first_color = first_color
