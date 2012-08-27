@@ -27,7 +27,7 @@ class InterLeaved2of5:
     ./bar_code.py NUMBER_TO_ENCODE
     """
 
-    def __init__(self, data, width=2, height=50, background_color='#FFFFFF', first_color='#000000', second_color='#FFFFFF', font="ARIAL.TTF"):
+    def __init__(self, data, width=2, height=50, background_color='#FFFFFF', first_color='#000000', second_color='#FFFFFF', font="ARIAL.TTF", text=True):
         self.data = data
         self.width = width
         self.height = height
@@ -35,6 +35,7 @@ class InterLeaved2of5:
         self.second_color = second_color
         self.background_color = background_color
         self.font = font
+        self.text = text
 
     def _control_number(self):
         """
@@ -80,7 +81,7 @@ class InterLeaved2of5:
             for num1, num2 in zip(TABLE[self.data[counter]], TABLE[self.data[counter+1]]):
                 encoding_numbers += ''.join(num1+num2)
             counter += 2
-        self.data = start + encoding_numbers + stop
+        self.data = start + encoding_numbers + stop + '0'
 
     def _image_size(self):
         """
@@ -94,7 +95,7 @@ class InterLeaved2of5:
                 all_width += self.width
             else:
                 all_width += self.width *3
-        self.image_width = self.width * 2 + all_width
+        self.image_width = self.width + all_width
 
     def _get_font_size(self):
         """
@@ -124,8 +125,11 @@ class InterLeaved2of5:
         """
         self._image_size()
         all_bits = self.data
-        image_height = self.height * 100 / 67
-        numbers_height = image_height - self.height
+        if self.text:
+            image_height = self.height * 100 / 67
+            numbers_height = image_height - self.height
+        else:
+            image_height = self.height
         im = Image.new('RGB', (self.image_width, image_height), self.background_color)
         draw = ImageDraw.Draw(im)
         counter = 0
@@ -147,16 +151,19 @@ class InterLeaved2of5:
                     draw.rectangle( ( (beginning_of_line ,0), (end_of_line, self.height) ) , self.second_color)
             beginning_of_line = end_of_line
             counter += 1
-        self._get_font_size()
-        font = ImageFont.truetype(self.font, self.font_size)
-        space = (self.image_width - self.all_len) / len(self.value)
-        x_place = space / 2
-        y_place = image_height - font.getsize(self.value[0])[1]
-        for i in self.value:
-            draw.text((x_place, y_place), i, self.first_color, font=font)
-            simbol_width, simbol_height = font.getsize(i)
-            x_place += simbol_width + space
-        im.save(self.value, "PNG")
+        if self.text:
+            self._get_font_size()
+            font = ImageFont.truetype(self.font, self.font_size)
+            space = (self.image_width - self.all_len) / len(self.value)
+            x_place = space / 2
+            y_place = image_height - font.getsize(self.value[0])[1]
+            for i in self.value:
+                draw.text((x_place, y_place), i, self.first_color, font=font)
+                simbol_width, simbol_height = font.getsize(i)
+                x_place += simbol_width + space
+            im.save(self.value, "PNG")
+        else:
+            im.save(self.value, "PNG")
 
     def get_image_base64(self):
         """
