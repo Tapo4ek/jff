@@ -9,7 +9,8 @@ import base64
 import sys
 import os
 
-TABLE = {'0':'00110', '1':'10001', '2':'01001', '3':'11000', '4':'00101', '5':'10100', '6':'01100', '7':'00011', '8':'10010', '9':'01010'}
+TABLE = {'0': '00110', '1': '10001', '2': '01001', '3': '11000', '4': '00101', '5': '10100', '6': '01100', '7': '00011', '8': '10010', '9': '01010'}
+
 
 class InterLeaved2of5:
     """
@@ -20,9 +21,9 @@ class InterLeaved2of5:
     import bar_code
     bar_code_obj = bar_code.InterLeaved2of5(data='10987654321007412589630')
     bar_code_obj.get_image()
-    
+
     Or you can use it as independent programm
-    
+
     python bar_code.py 10987654321007412589630
     ./bar_code.py NUMBER_TO_ENCODE
     """
@@ -78,8 +79,8 @@ class InterLeaved2of5:
         counter = 0
         encoding_numbers = ''
         while counter < len(self.data):
-            for num1, num2 in zip(TABLE[self.data[counter]], TABLE[self.data[counter+1]]):
-                encoding_numbers += ''.join(num1+num2)
+            for num1, num2 in zip(TABLE[self.data[counter]], TABLE[self.data[counter + 1]]):
+                encoding_numbers += ''.join(num1 + num2)
             counter += 2
         self.data = start + encoding_numbers + stop + '0'
 
@@ -94,7 +95,7 @@ class InterLeaved2of5:
             if bit == '0':
                 all_width += self.width
             else:
-                all_width += self.width *3
+                all_width += self.width * 3
         self.image_width = self.width + all_width
 
     def _get_font_size(self):
@@ -110,7 +111,7 @@ class InterLeaved2of5:
             for i in self.value:
                 length, height = font.getsize(i)
                 self.all_len += length
-            if ((self.image_width / 2) < self.all_len < self.image_width) and (height < image_height-self.height):
+            if ((self.image_width / 2) < self.all_len < self.image_width) and (height < image_height - self.height):
                 good_size = True
             if self.all_len > self.image_width or height > (image_height - self.height):
                 self.font_size -= 1
@@ -138,17 +139,17 @@ class InterLeaved2of5:
             if counter % 2 == 0:
                 if bit == '0':
                     end_of_line = beginning_of_line + self.width
-                    draw.rectangle( ( (beginning_of_line ,0), (end_of_line, self.height) ) , self.first_color)
+                    draw.rectangle(((beginning_of_line, 0), (end_of_line, self.height)), self.first_color)
                 else:
                     end_of_line = self.width * 3 + beginning_of_line
-                    draw.rectangle( ( (beginning_of_line, 0), (end_of_line, self.height ) ), self.first_color )
+                    draw.rectangle(((beginning_of_line, 0), (end_of_line, self.height)), self.first_color)
             else:
                 if bit == '0':
                     end_of_line = beginning_of_line + self.width
-                    draw.rectangle( ( (beginning_of_line ,0), (end_of_line, self.height) ) , self.second_color)
+                    draw.rectangle(((beginning_of_line, 0), (end_of_line, self.height)), self.second_color)
                 else:
                     end_of_line = self.width * 3 + beginning_of_line
-                    draw.rectangle( ( (beginning_of_line ,0), (end_of_line, self.height) ) , self.second_color)
+                    draw.rectangle(((beginning_of_line, 0), (end_of_line, self.height)), self.second_color)
             beginning_of_line = end_of_line
             counter += 1
         if self.text:
@@ -169,7 +170,7 @@ class InterLeaved2of5:
         """
         Function prints to stdout base64 of the image
         Useful for inputing to the database
-        
+
         "Be careful, i used strings below to start my script from python 3.2"
         PY27_PATH = '/usr/bin/python2.7'
         PATH_TO_SCRIPT = '/some/path/to/folder/with/script'
@@ -184,8 +185,7 @@ class InterLeaved2of5:
             f.close()
             os.system('rm %s' % self.value)
             return data.encode("base64")
-        
+
 if __name__ == "__main__":
-    if len(sys.argv) > 1: data = sys.argv[1]
-    else: data = '10987654321007412589630'
+    data = sys.argv[1] if len(sys.argv) > 1 else '10987654321007412589630'
     InterLeaved2of5(data).get_image()
