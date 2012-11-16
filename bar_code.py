@@ -162,9 +162,8 @@ class InterLeaved2of5:
                 draw.text((x_place, y_place), i, self.first_color, font=font)
                 simbol_width, simbol_height = font.getsize(i)
                 x_place += simbol_width + space
-            im.save(self.value, "PNG")
-        else:
-            im.save(self.value, "PNG")
+        im.save(self.value, "PNG")
+
 
     def get_image_base64(self):
         """
@@ -183,7 +182,7 @@ class InterLeaved2of5:
         with open('%s' % self.value) as f:
             data = f.read()
             f.close()
-            os.system('rm %s' % self.value)
+            os.remove('%s' % self.value)
             return data.encode("base64")
 
 if __name__ == "__main__":
